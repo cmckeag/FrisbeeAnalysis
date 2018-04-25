@@ -2,5 +2,5 @@
 # ultianalytics.
 
 get.points = function(raw) {
-  
+  return(FALSE)
 }
