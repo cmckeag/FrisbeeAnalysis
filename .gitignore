@@ -38,3 +38,6 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 >>>>>>> de71ba9357ee19e4a07e42e51368939ab7eba420
+
+# data
+data
