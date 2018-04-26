@@ -1,17 +1,17 @@
-log.model.points = function(data) {
+log.model.points = function(point.data) {
   # Creates a logistic model object, using all the data
-  glm(Scored ~ ., family = binomial(link = "logit"), data = data)
+  glm(Scored ~ ., family = binomial(link = "logit"), data = point.data)
 }
 
-accuracy.points = function(data) {
+accuracy.points = function(point.data) {
   # Uses 10-fold validation to check the accuracy of the model
-  data = data[sample(nrow(data)),]
-  sets = cut(seq(1, nrow(data)), breaks = 10, labels = FALSE)
+  data = data[sample(nrow(point.data)),]
+  sets = cut(seq(1, nrow(point.data)), breaks = 10, labels = FALSE)
   accs = rep(0, 10)
   
   for (i in 1:10) {
     testindex = which(sets == i)
-    testset = data[testindex,]
+    testset = point.data[testindex,]
     model = log.model.points(data[-testindex,])
     predictions = round(predict(model, newdata = testset, type = "response"))
     accs[i] = mean(predictions == testset[,"Scored"])
@@ -19,7 +19,7 @@ accuracy.points = function(data) {
   return(mean(accs))
 }
 
-predict.point = function(data, line) {
+predict.point = function(point.data, line) {
   # Predict the chance of a line scoring.
   line = as.logical(line)
   if (length(line) != ncol(data) - 1) {
@@ -28,24 +28,24 @@ predict.point = function(data, line) {
   if (sum(line) != 7) {
     warning("You should specify 7 players.")
   }
-  model = log.model.points(data)
+  model = log.model.points(point.data)
   newdata = data.frame(rbind(line))
-  colnames(newdata) = colnames(data)[-1]
+  colnames(newdata) = colnames(point.data)[-1]
   rownames(newdata) = c()
   as.numeric(predict(model, newdata = newdata, type = "response"))
 }
 
-player.ranking = function(data) {
-  model = log.model.points(data)
-  players = colnames(data)[-1]
+player.ranking = function(point.data) {
+  model = log.model.points(point.data)
+  players = colnames(point.data)[-1]
   res = data.frame(Player = players, Value = as.numeric(coef(model)[-1]), stringsAsFactors = FALSE)
   res = as.data.frame(res[order(res$Value, decreasing = TRUE),])
   rownames(res) = NULL
   return(res)
 }
 
-generate.line = function(data, playerlist = NULL) {
-  players = colnames(data)[-1]
+generate.line = function(point.data, playerlist = NULL) {
+  players = colnames(point.data)[-1]
   if (length(players) < 7) {
     stop("Not enough players on this team.")
   }
