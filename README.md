@@ -5,7 +5,7 @@ This is a project in manipulating data collected in the sport of ultimate frisbe
 
 Data is available on www.ultianalytics.com. Ultinalaytics collects data for every action that happens during a game. For AUDL teams, this is typically ~5000 rows.
 
-The objective of this project was to take raw from ultianalytics, and extract only the points scored and the players on the field when the point was scored. Then, you could use this data to create a model that would predict the likelihood of a given set of players scoring.
+The objective of this project was to take raw data from ultianalytics, and extract only the points scored and the players on the field when the point was scored. Then, you could use this data to create a model that would predict the likelihood of a given set of players scoring.
 
 ## Requirements
 The project uses only the base packages available in R.
