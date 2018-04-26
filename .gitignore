@@ -39,6 +39,10 @@ vignettes/*.pdf
 *.knit.md
 >>>>>>> de71ba9357ee19e4a07e42e51368939ab7eba420
 
+# Rstudio
+.DS_Store
+.Rproj
+
 # Potentially large data files
 data
 out
