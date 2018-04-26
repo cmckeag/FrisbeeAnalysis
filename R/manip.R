@@ -41,7 +41,8 @@ get.all.players = function(raw) {
   desired = c("Player.0","Player.1","Player.2","Player.3","Player.4",
               "Player.5","Player.6","Player.7")
   players = unique(unlist(raw[,desired]))
-  players = players[players != ""]
+  players = players[!(players %in% c("","Anonymous"))]
+  players = players[!is.na(players)]
   players = players[order(players)]
   return(players)
 }

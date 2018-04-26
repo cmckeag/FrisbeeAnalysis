@@ -5,15 +5,15 @@ log.model.points = function(point.data) {
 
 accuracy.points = function(point.data) {
   # Uses 10-fold validation to check the accuracy of the model
-  data = data[sample(nrow(point.data)),]
+  point.data = point.data[sample(nrow(point.data)),]
   sets = cut(seq(1, nrow(point.data)), breaks = 10, labels = FALSE)
   accs = rep(0, 10)
   
   for (i in 1:10) {
     testindex = which(sets == i)
     testset = point.data[testindex,]
-    model = log.model.points(data[-testindex,])
-    predictions = round(predict(model, newdata = testset, type = "response"))
+    model = log.model.points(point.data[-testindex,])
+    predictions = round(suppressWarnings(predict(model, newdata = testset, type = "response")))
     accs[i] = mean(predictions == testset[,"Scored"])
   }
   return(mean(accs))
@@ -51,6 +51,9 @@ generate.line = function(point.data, playerlist = NULL) {
   }
 
   if (!is.null(playerlist)) {
+    if (!is.character(playerlist)) {
+      stop("The list you provided is not of type character")
+    }
     if (length(playerlist) != 7) {
       warning("You should provide a list of 7 players")
     }
