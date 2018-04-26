@@ -17,6 +17,10 @@ get.raw = function(filename) {
 }
 
 get.points = function(filename) {
+  if (grepl(".csv",filename)) {
+    filename = gsub(".csv","",filename)
+  }
+  
   raw = get.raw(filename)
   desired = c("Event.Type",
               "Player.0","Player.1","Player.2","Player.3","Player.4",

@@ -35,23 +35,21 @@ predict.point = function(data, line) {
   as.numeric(predict(model, newdata = newdata, type = "response"))
 }
 
-player.ranking = function(filename) {
-  source("R/manip.R")
-  model = log.model.points(get.points(filename))
-  players = get.all.players(get.raw(filename))
+player.ranking = function(data) {
+  model = log.model.points(data)
+  players = colnames(data)[-1]
   res = data.frame(Player = players, Value = as.numeric(coef(model)[-1]), stringsAsFactors = FALSE)
   res = as.data.frame(res[order(res$Value, decreasing = TRUE),])
   rownames(res) = NULL
   return(res)
 }
 
-generate.line = function(filename, playerlist = NULL) {
-  source("R/manip.R")
-  players = get.all.players(get.raw(filename))
+generate.line = function(data, playerlist = NULL) {
+  players = colnames(data)[-1]
   if (length(players) < 7) {
     stop("Not enough players on this team.")
   }
-  
+
   if (!is.null(playerlist)) {
     if (length(playerlist) != 7) {
       warning("You should provide a list of 7 players")
