@@ -19,18 +19,57 @@ accuracy.points = function(data) {
   return(mean(accs))
 }
 
-predict.points = function(data, inputs) {
-  # Predict 
-  inputs = as.logical(inputs)
-  if (length(inputs) != ncol(data) - 1) {
+predict.points = function(data, line) {
+  # Predict the chance of a line scoring.
+  line = as.logical(line)
+  if (length(line) != ncol(data) - 1) {
     stop("Incorrect input format.")
   }
-  if (sum(inputs) != 7) {
+  if (sum(line) != 7) {
     warning("You should specify 7 players.")
   }
   model = log.model.points(data)
-  newdata = data.frame(rbind(inputs))
+  newdata = data.frame(rbind(line))
   colnames(newdata) = colnames(data)[-1]
   rownames(newdata) = c()
   as.numeric(predict(model, newdata = newdata, type = "response"))
+}
+
+generate.line = function(filename, playerlist = NULL) {
+  source("R/manip.R")
+  players = get.all.players(get.raw(filename))
+  if (length(players) < 7) {
+    stop("Not enough players on this team.")
+  }
+  
+  if (!is.null(playerlist)) {
+    if (length(playerlist) != 7) {
+      warning("You should provide a list of 7 players")
+    }
+    res = tolower(players) %in% tolower(playerlist)
+    if (length(playerlist) != sum(res)) {
+      excluded = paste(playerlist[which(!(tolower(playerlist) %in% tolower(players)))], collapse = ",")
+      warning(paste("The following players are not on the team: ", excluded))
+    }
+    return(res)
+  }
+  
+  print(players)
+  input.list = character()
+  while (TRUE) {
+    input = readline(paste("Select a player (", length(input.list), "/7):"))
+    if (tolower(input) %in% tolower(players) & !(tolower(input) %in% tolower(input.list))) {
+      input.list[length(input.list)+1] = players[which(tolower(players) %in% tolower(input))]
+      if (length(input.list) == 7) {
+        break
+      }
+    } else if (input == "") {
+      print("End function.")
+      return()
+    } else {
+      print("Invalid player")
+    }
+  }
+  print("Complete")
+  return(players %in% input.list)
 }
