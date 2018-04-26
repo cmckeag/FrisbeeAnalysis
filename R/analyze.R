@@ -19,7 +19,7 @@ accuracy.points = function(data) {
   return(mean(accs))
 }
 
-predict.points = function(data, line) {
+predict.point = function(data, line) {
   # Predict the chance of a line scoring.
   line = as.logical(line)
   if (length(line) != ncol(data) - 1) {
@@ -33,6 +33,16 @@ predict.points = function(data, line) {
   colnames(newdata) = colnames(data)[-1]
   rownames(newdata) = c()
   as.numeric(predict(model, newdata = newdata, type = "response"))
+}
+
+player.ranking = function(filename) {
+  source("R/manip.R")
+  model = log.model.points(get.points(filename))
+  players = get.all.players(get.raw(filename))
+  res = data.frame(Player = players, Value = as.numeric(coef(model)[-1]), stringsAsFactors = FALSE)
+  res = as.data.frame(res[order(res$Value, decreasing = TRUE),])
+  rownames(res) = NULL
+  return(res)
 }
 
 generate.line = function(filename, playerlist = NULL) {
