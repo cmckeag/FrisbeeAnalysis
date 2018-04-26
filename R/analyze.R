@@ -1,9 +1,10 @@
-model.points = function(data) {
-  # Creates the glm object, using all the data
+log.model.points = function(data) {
+  # Creates a logistic model object, using all the data
   glm(Scored ~ ., family = binomial(link = "logit"), data = data)
 }
 
 accuracy.points = function(data) {
+  # Uses 10-fold validation to check the accuracy of the model
   data = data[sample(nrow(data)),]
   sets = cut(seq(1, nrow(data)), breaks = 10, labels = FALSE)
   accs = rep(0, 10)
@@ -11,7 +12,7 @@ accuracy.points = function(data) {
   for (i in 1:10) {
     testindex = which(sets == i)
     testset = data[testindex,]
-    model = model.points(data[-testindex,])
+    model = log.model.points(data[-testindex,])
     predictions = round(predict(model, newdata = testset, type = "response"))
     accs[i] = mean(predictions == testset[,"Scored"])
   }
@@ -19,6 +20,7 @@ accuracy.points = function(data) {
 }
 
 predict.points = function(data, inputs) {
+  # Predict 
   inputs = as.logical(inputs)
   if (length(inputs) != ncol(data) - 1) {
     stop("Incorrect input format.")
@@ -26,7 +28,7 @@ predict.points = function(data, inputs) {
   if (sum(inputs) != 7) {
     warning("You should specify 7 players.")
   }
-  model = model.points(data)
+  model = log.model.points(data)
   newdata = data.frame(rbind(inputs))
   colnames(newdata) = colnames(data)[-1]
   rownames(newdata) = c()
