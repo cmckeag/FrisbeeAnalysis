@@ -41,7 +41,7 @@ vignettes/*.pdf
 
 # Rstudio
 .DS_Store
-.Rproj
+*.Rproj
 
 # Potentially large data files
 data
