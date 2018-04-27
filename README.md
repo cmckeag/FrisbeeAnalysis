@@ -25,6 +25,11 @@ The function then writes the resulting points dataframe into a csv file located 
 
 For an AUDL team, this dataframe typically has between 500-1000 rows.
 
+#### get.dur(filename)
+Converts raw data into duration data. Each row corresponds to a point played. The response variable is the duration in seconds of that point. The other variables are indicator variables corresponding to which players were on the line for that point.
+
+The function then writes the resulting dataframe into a csv file located in the /out/ folder.
+
 #### get.all.players(raw)
 Helper function for `get.points()`. Takes as input the raw data, then returns a vector of strings corresponding to every player on the team, in alphabetical order.
 An equivalent list can be extracted from points data by doing `colnames(points.data)[-1]`.
@@ -33,8 +38,11 @@ An equivalent list can be extracted from points data by doing `colnames(points.d
 analyze.R contains functions for performing regression on points data, and returning useful information from that regression.
 All functions take points data as input, not raw data.
 
-#### log.model.points(point.data)
+#### model.points(point.data)
 Creates a logistic regression model object using all the given data. Logistic regression makes the most sense given the predictors and response.
+
+#### model.dur(dur.data)
+Creates a standard least squares regression object using the duration data.
 
 #### accuracy.points(point.data)
 Uses 10-fold validation to assess the accuracy of the logistic model.
@@ -45,6 +53,9 @@ Depending on the amount of points data available, accuracy typically ranges from
 Given the previous points data, and a line of 7 players, returns the probability of that line scoring.
 `line` must be in the correct format: a logical vector with each entry corresponding to a player on the team, in alphabetical order. True entries mean the player is on the line, False entries mean the player is not on the line. The length of the vector must be the same as the total number of players on the team. You can specify any number of players on the line, but it would make the most sense to specify 7 players.
 Use the `generate.line()` function to generate a line in the correct format.
+
+#### predict.dur(dur.data, line)
+Given the previous duration data, and a line of 7 players, predict the duration of this point.
 
 #### player.ranking(point.data)
 Since the model is made via logistic regression of a boolean response versus boolean indicator variables, then the coefficients rougly and naively represent each players' "contribution" to the team. Returns a list of players on the team, in decreasing order according to their coefficient value.
@@ -66,4 +77,4 @@ Despite this, `player.ranking()` provides some interesting insight into the team
 The data available on www.ultianalytics.com goes far beyond just points scored. There are certainly other problems to consider, and other angles to approach this problem from.
  * Include further variables to predict points beyond players on the field (for example: duration of point, number of points played already, number of turnovers in the point, etc)
  * Try another model for prediction. Logistic regression made the most sense to me, but other classification methods may work better. (However I would not expect kNN to work for this problem as it currently is, due to all the predictors being indicator variables)
- * Predict the duration of a point given the players on the line (tough since "point duration" data is usually not accurate, but AUDL teams might have better stat-keeping practices than your average team)
+ * Consider consolidating all relevant data per point into one singular dataframe, and then we can work with that dataframe in all the `analyze.R` methods, instead of having separate functions require specific dataframe types.

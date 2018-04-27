@@ -20,8 +20,8 @@ get.points = function(filename) {
   if (grepl(".csv",filename)) {
     filename = gsub(".csv","",filename)
   }
-  
   raw = get.raw(filename)
+  
   desired = c("Event.Type",
               "Player.0","Player.1","Player.2","Player.3","Player.4",
               "Player.5","Player.6","Player.7")
@@ -32,6 +32,25 @@ get.points = function(filename) {
   new.dat[,1] = as.logical(as.numeric(factor(new.dat[,1], levels = c("Defense", "Offense")))-1)
   
   write.csv(new.dat, file = paste("out/", filename, "_points.csv", sep = ""), row.names=FALSE)
+  return(new.dat)
+}
+
+get.dur = function(filename) {
+  if (grepl(".csv",filename)) {
+    filename = gsub(".csv","",filename)
+  }
+  raw = get.raw(filename)
+  
+  desired = c("Point.Elapsed.Seconds",
+              "Player.0","Player.1","Player.2","Player.3","Player.4",
+              "Player.5","Player.6","Player.7")
+  dur.data = raw[!duplicated(raw[,desired]),desired]
+  dur.data = dur.data[which(dur.data[,"Player.0"] != ""),]
+  players = get.all.players(raw)
+  new.dat = data.frame(Duration = dur.data[,1], t(as.matrix(apply(dur.data[,desired[-1]],1,function(x) players %in% x))))
+  colnames(new.dat) = c("Duration",players)
+  
+  write.csv(new.dat, file = paste("out/", filename, "_duration.csv", sep = ""), row.names=FALSE)
   return(new.dat)
 }
 
