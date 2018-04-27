@@ -5,7 +5,7 @@ This is a project in manipulating data collected in the sport of ultimate frisbe
 
 Data is available on www.ultianalytics.com. Ultinalaytics collects data for every action that happens during a game. For AUDL teams, this is typically ~5000 rows.
 
-The objective of this project was to take raw from ultianalytics, and extract only the points scored and the players on the field when the point was scored. Then, you could use this data to create a model that would predict the likelihood of a given set of players scoring.
+The objective of this project was to take raw data from ultianalytics, and extract only the points scored and the players on the field when the point was scored. Then, you could use this data to create a model that would predict the likelihood of a given set of players scoring.
 
 ## Requirements
 The project uses only the base packages available in R.
@@ -77,4 +77,8 @@ Despite this, `player.ranking()` provides some interesting insight into the team
 The data available on www.ultianalytics.com goes far beyond just points scored. There are certainly other problems to consider, and other angles to approach this problem from.
  * Include further variables to predict points beyond players on the field (for example: duration of point, number of points played already, number of turnovers in the point, etc)
  * Try another model for prediction. Logistic regression made the most sense to me, but other classification methods may work better. (However I would not expect kNN to work for this problem as it currently is, due to all the predictors being indicator variables)
+<<<<<<< HEAD
  * Consider consolidating all relevant data per point into one singular dataframe, and then we can work with that dataframe in all the `analyze.R` methods, instead of having separate functions require specific dataframe types.
+=======
+ * Predict the duration of a point given the players on the line (tough since "point duration" data is usually not accurate, but AUDL teams might have better stat-keeping practices than your average team)
+>>>>>>> 1e2b2b06065a22dcbc711463ac320f7bb45a52ac
