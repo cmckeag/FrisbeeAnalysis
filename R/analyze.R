@@ -1,43 +1,45 @@
-model.points = function(point.data) {
+# See README.md for documentation
+
+model.points = function(dat) {
   # Creates a logistic model object, using all the data
-  glm(Scored ~ ., family = binomial(link = "logit"), data = point.data)
+  glm(Scored ~ ., family = binomial(link = "logit"), data = dat[,-(2:5)])
 }
 
-model.dur = function(dur.data) {
+model.dur = function(dat) {
   # Consider adding outlier detection, especially for low values.
-  lm(Duration ~ ., data = dur.data)
+  lm(Duration ~ ., data = dat[,-c(1,3,4,5)])
   # Is there a way to check "accuracy" in terms of a number between 0-1?
   # Response is numeric so we can only get MSE/absolute error, not a percentage.
 }
 
-accuracy.points = function(point.data) {
+accuracy.points = function(dat) {
   # Uses 10-fold validation to check the accuracy of the model
-  point.data = point.data[sample(nrow(point.data)),]
-  sets = cut(seq(1, nrow(point.data)), breaks = 10, labels = FALSE)
+  dat = dat[sample(nrow(dat)),]
+  sets = cut(seq(1, nrow(dat)), breaks = 10, labels = FALSE)
   accs = rep(0, 10)
   
   for (i in 1:10) {
     testindex = which(sets == i)
-    testset = point.data[testindex,]
-    model = model.points(point.data[-testindex,])
+    testset = dat[testindex,]
+    model = model.points(dat[-testindex,])
     predictions = round(suppressWarnings(predict(model, newdata = testset, type = "response")))
     accs[i] = mean(predictions == testset[,"Scored"])
   }
   return(mean(accs))
 }
 
-predict.point = function(point.data, line) {
+predict.point = function(dat, line) {
   # Predict the chance of a line scoring.
   line = as.logical(line)
-  if (length(line) != ncol(point.data) - 1) {
+  if (length(line) != ncol(dat) - 5) {
     stop("Incorrect input format.")
   }
   if (sum(line) != 7) {
     warning("You should specify 7 players.")
   }
-  model = model.points(point.data)
+  model = model.points(dat)
   newdata = data.frame(rbind(line))
-  colnames(newdata) = colnames(point.data)[-1]
+  colnames(newdata) = colnames(dat)[-(1:5)]
   rownames(newdata) = c()
   as.numeric(predict(model, newdata = newdata, type = "response"))
 }
@@ -45,7 +47,7 @@ predict.point = function(point.data, line) {
 predict.dur = function(dur.data, line) {
   # Predict the duration of this point in seconds
   line = as.logical(line)
-  if (length(line) != ncol(dur.data) - 1) {
+  if (length(line) != ncol(dur.data) - 5) {
     stop("Incorrect input format.")
   }
   if (sum(line) != 7) {
@@ -53,22 +55,22 @@ predict.dur = function(dur.data, line) {
   }
   model = model.dur(dur.data)
   newdata = data.frame(rbind(line))
-  colnames(newdata) = colnames(dur.data)[-1]
+  colnames(newdata) = colnames(dur.data)[-(1:5)]
   rownames(newdata) = c()
   as.numeric(predict(model, newdata = newdata))
 }
 
-player.ranking = function(point.data) {
-  model = model.points(point.data)
-  players = colnames(point.data)[-1]
+player.ranking = function(dat) {
+  model = model.points(dat)
+  players = colnames(dat)[-(1:5)]
   res = data.frame(Player = players, Value = as.numeric(coef(model)[-1]), stringsAsFactors = FALSE)
   res = as.data.frame(res[order(res$Value, decreasing = TRUE),])
   rownames(res) = NULL
   return(res)
 }
 
-generate.line = function(point.data, playerlist = NULL) {
-  players = colnames(point.data)[-1]
+generate.line = function(dat, playerlist = NULL) {
+  players = colnames(dat)[-(1:5)]
   if (length(players) < 7) {
     stop("Not enough players on this team.")
   }
@@ -104,6 +106,5 @@ generate.line = function(point.data, playerlist = NULL) {
       print("Invalid player")
     }
   }
-  print("Complete")
   return(players %in% input.list)
 }

@@ -1,5 +1,4 @@
-# Contains functions for manipulating the original datasets from
-# ultianalytics.
+# See README.md for documentation
 
 get.raw = function(filename) {
   # filename should be located in the /data/ folder
@@ -14,43 +13,6 @@ get.raw = function(filename) {
     stop("File does not exist")
   }
   read.csv(paste("data/",filename,".csv", sep = ""), stringsAsFactors = FALSE)
-}
-
-get.points = function(filename) {
-  if (grepl(".csv",filename)) {
-    filename = gsub(".csv","",filename)
-  }
-  raw = get.raw(filename)
-  
-  desired = c("Event.Type",
-              "Player.0","Player.1","Player.2","Player.3","Player.4",
-              "Player.5","Player.6","Player.7")
-  points.data = raw[raw$Action == "Goal",desired]
-  players = get.all.players(raw)
-  new.dat = data.frame(Scored = points.data[,1], t(as.matrix(apply(points.data[,desired[-1]],1,function(x) players %in% x))))
-  colnames(new.dat) = c("Scored",players)
-  new.dat[,1] = as.logical(as.numeric(factor(new.dat[,1], levels = c("Defense", "Offense")))-1)
-  
-  write.csv(new.dat, file = paste("out/", filename, "_points.csv", sep = ""), row.names=FALSE)
-  return(new.dat)
-}
-
-get.dur = function(filename) {
-  if (grepl(".csv",filename)) {
-    filename = gsub(".csv","",filename)
-  }
-  raw = get.raw(filename)
-  
-  desired = c("Point.Elapsed.Seconds",
-              "Player.0","Player.1","Player.2","Player.3","Player.4",
-              "Player.5","Player.6","Player.7")
-  dur.data = raw[raw$Action == "Goal",desired]
-  players = get.all.players(raw)
-  new.dat = data.frame(Duration = dur.data[,1], t(as.matrix(apply(dur.data[,desired[-1]],1,function(x) players %in% x))))
-  colnames(new.dat) = c("Duration",players)
-  
-  write.csv(new.dat, file = paste("out/", filename, "_duration.csv", sep = ""), row.names=FALSE)
-  return(new.dat)
 }
 
 get.all.players = function(raw) {
@@ -97,11 +59,11 @@ extract.data = function(filename) {
 }
 
 ignore.cessations = function(raw) {
-  ## Helper function
-  ## Ignore anything that happens immediately before
-  ## a cessation. Only applies to AUDL games, where it is
-  ## possible for a point to end without a goal.
+  # Should only affect AUDL teams.
   cess.index = which(raw$Event.Type == "Cessation")
+  if (length(cess.index) == 0) {
+    return(raw)
+  }
   goal.index = which(raw$Action == "Goal")
   ignore.index = numeric()
   if (length(cess.index) > 0) {
@@ -114,9 +76,6 @@ ignore.cessations = function(raw) {
 }
 
 count.passes = function(raw) {
-  # Helper function
-  # Counts the total number of passes completed (including goal if scored)
-  # in a point
   goal.index = which(raw$Action == "Goal")
   groups = cut(seq(1,nrow(raw)), breaks = c(0,goal.index), labels = FALSE)
   pass.actions = raw$Action == "Catch" | 
